@@ -1,0 +1,29 @@
+{
+  "name": "magic-todo",
+  "version": "1.0.0",
+  "description": "Magic TODO API",
+  "homepage": "https://github.com/yomar-dev/magic-todo-api#readme",
+  "bugs": {
+    "url": "https://github.com/yomar-dev/magic-todo-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yomar-dev/magic-todo-api.git"
+  },
+  "license": "ISC",
+  "author": "Yomar Miranda",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "devDependencies": {
+    "@types/node": "^25.7.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
+}
