@@ -83,6 +83,41 @@ export class AuthService {
     };
   }
 
+  async refresh(
+    token: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    try {
+      const decoded = jwt.verify(token, config.jwt.refreshSecret) as {
+        userId: string;
+      };
+
+      const user = await prisma.user.findUnique({
+        where: {
+          id: decoded.userId,
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          createdAt: true,
+        },
+      });
+
+      if (!user) {
+        throw new UnauthorizedError('User not found');
+      }
+
+      const { accessToken, refreshToken } = this.generateTokens(user);
+
+      return {
+        accessToken,
+        refreshToken,
+      };
+    } catch (error) {
+      throw new UnauthorizedError('Invalid refresh token');
+    }
+  }
+
   private generateTokens(user: UserResponse) {
     const accessToken = jwt.sign({ userId: user.id }, config.jwt.secret, {
       expiresIn: config.jwt.expiresIn,
