@@ -21,5 +21,17 @@ export const listTodoSchema = z.object({
   priority: z.enum(['low', 'medium', 'high']).optional(),
 });
 
+export const updateTodoSchema = z.object({
+  title: z.string().min(1).max(255).optional(),
+  description: z.string().optional(),
+  completed: z.boolean().optional(),
+  priority: z.enum(['low', 'medium', 'high']).optional(),
+  dueDate: z.string().datetime().optional().nullable(),
+  notes: z.string().optional(),
+  categoryId: z.string().uuid().optional().nullable(),
+  tagIds: z.array(z.string().uuid()).optional(),
+});
+
 export type CreateTodoInput = z.infer<typeof createTodoSchema>;
 export type ListTodoInput = z.infer<typeof listTodoSchema>;
+export type UpdateTodoInput = z.infer<typeof updateTodoSchema>;

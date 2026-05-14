@@ -3,6 +3,7 @@ import { TodoResponse, TodoListResponse } from '../types/todo.types.js';
 import {
   CreateTodoInput,
   ListTodoInput,
+  UpdateTodoInput,
 } from '../validators/todo.validator.js';
 import { NotFoundError } from '../../../shared/exceptions/AppError.js';
 
@@ -78,6 +79,51 @@ export class TodoService {
     }
 
     return this.formatTodo(todo);
+  }
+
+  async update(
+    userId: string,
+    todoId: string,
+    input: UpdateTodoInput,
+  ): Promise<TodoResponse> {
+    const todo = await prisma.todo.findFirst({
+      where: { id: todoId, userId },
+    });
+
+    if (!todo) {
+      throw new NotFoundError('Todo not found');
+    }
+
+    const updatedTodo = await prisma.todo.update({
+      where: { id: todoId },
+      data: {
+        ...(input.title !== undefined && { title: input.title }),
+        ...(input.description !== undefined && {
+          description: input.description,
+        }),
+        ...(input.completed !== undefined && { completed: input.completed }),
+        ...(input.priority !== undefined && { priority: input.priority }),
+        ...(input.dueDate !== undefined && {
+          dueDate: input.dueDate ? new Date(input.dueDate) : null,
+        }),
+        ...(input.notes !== undefined && { notes: input.notes }),
+        ...(input.categoryId !== undefined && { categoryId: input.categoryId }),
+        ...(input.tagIds !== undefined && {
+          tags: {
+            deleteMany: {},
+            create: input.tagIds.map((tagId) => ({
+              tag: { connect: { id: tagId } },
+            })),
+          },
+        }),
+      },
+      include: {
+        category: { select: { id: true, name: true } },
+        tags: { select: { tag: { select: { id: true, name: true } } } },
+      },
+    });
+
+    return this.formatTodo(updatedTodo);
   }
 
   async delete(userId: string, todoId: string): Promise<void> {

@@ -4,6 +4,7 @@ import { todoService } from '../services/todo.service.js';
 import {
   createTodoSchema,
   listTodoSchema,
+  updateTodoSchema,
 } from '../validators/todo.validator.js';
 import { success, paginated } from '../../../shared/utils/response.js';
 
@@ -40,6 +41,17 @@ export class TodoController {
     try {
       const id = getParam(req.params.id);
       const todo = await todoService.getById(req.user!.userId, id);
+      res.status(200).json(success(todo));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async update(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = getParam(req.params.id);
+      const todoInput = updateTodoSchema.parse(req.body);
+      const todo = await todoService.update(req.user!.userId, id, todoInput);
       res.status(200).json(success(todo));
     } catch (error) {
       next(error);

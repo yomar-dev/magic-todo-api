@@ -9,6 +9,7 @@ router.use(authenticate);
 router.post('/', (req, res, next) => todoController.create(req, res, next));
 router.get('/', (req, res, next) => todoController.list(req, res, next));
 router.get('/:id', (req, res, next) => todoController.getById(req, res, next));
+router.put('/:id', (req, res, next) => todoController.update(req, res, next));
 router.delete('/:id', (req, res, next) =>
   todoController.delete(req, res, next),
 );
