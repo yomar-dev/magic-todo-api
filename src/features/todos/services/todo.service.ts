@@ -80,6 +80,20 @@ export class TodoService {
     return this.formatTodo(todo);
   }
 
+  async delete(userId: string, todoId: string): Promise<void> {
+    const todo = await prisma.todo.findFirst({
+      where: { id: todoId, userId },
+    });
+
+    if (!todo) {
+      throw new NotFoundError('Todo not found');
+    }
+
+    await prisma.todo.delete({
+      where: { id: todoId },
+    });
+  }
+
   private formatTodo(todo: {
     id: string;
     title: string;
