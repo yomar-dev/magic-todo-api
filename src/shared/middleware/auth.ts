@@ -32,10 +32,24 @@ export async function authenticate(
 
     const token = authHeader.split(' ')[1];
 
-    const decoded = jwt.verify(token, config.jwt.secret) as AuthUser;
+    if (!token?.trim()) {
+      throw new UnauthorizedError('No token provided');
+    }
+
+    const decoded = jwt.verify(token, config.jwt.secret);
+
+    if (
+      typeof decoded === 'string' ||
+      typeof decoded.userId !== 'string' ||
+      typeof decoded.email !== 'string'
+    ) {
+      throw new UnauthorizedError('Invalid token payload');
+    }
+
+    const payload: AuthUser = { userId: decoded.userId, email: decoded.email };
 
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: payload.userId },
       select: { id: true, email: true },
     });
 
