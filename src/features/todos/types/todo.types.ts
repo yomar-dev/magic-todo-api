@@ -13,3 +13,10 @@ export interface TodoResponse {
   category: Pick<Category, 'id' | 'name'> | null;
   tags: Pick<Tag, 'id' | 'name'>[];
 }
+
+export interface TodoListResponse {
+  todos: TodoResponse[];
+  total: number;
+  limit: number;
+  offset: number;
+}

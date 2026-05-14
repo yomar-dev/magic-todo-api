@@ -1,6 +1,9 @@
 import { prisma } from '../../../lib/prisma.js';
-import { TodoResponse } from '../types/todo.types.js';
-import { CreateTodoInput } from '../validators/todo.validator.js';
+import { TodoResponse, TodoListResponse } from '../types/todo.types.js';
+import {
+  CreateTodoInput,
+  ListTodoInput,
+} from '../validators/todo.validator.js';
 
 export class TodoService {
   async create(userId: string, input: CreateTodoInput): Promise<TodoResponse> {
@@ -29,6 +32,35 @@ export class TodoService {
     });
 
     return this.formatTodo(todo);
+  }
+
+  async list(userId: string, input: ListTodoInput): Promise<TodoListResponse> {
+    const where = {
+      userId,
+      ...(input.completed !== undefined && { completed: input.completed }),
+      ...(input.priority && { priority: input.priority }),
+    };
+
+    const [todos, total] = await Promise.all([
+      prisma.todo.findMany({
+        where,
+        skip: input.offset,
+        take: input.limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          category: { select: { id: true, name: true } },
+          tags: { select: { tag: { select: { id: true, name: true } } } },
+        },
+      }),
+      prisma.todo.count({ where }),
+    ]);
+
+    return {
+      todos: todos.map(this.formatTodo),
+      total,
+      limit: input.limit,
+      offset: input.offset,
+    };
   }
 
   private formatTodo(todo: {
