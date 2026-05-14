@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import { authenticate } from '../../../shared/middleware/auth.js';
+import { todoController } from '../controllers/todo.controller.js';
+
+const router = Router();
+
+router.use(authenticate);
+
+router.post('/', (req, res, next) => todoController.create(req, res, next));
+
+export default router;
