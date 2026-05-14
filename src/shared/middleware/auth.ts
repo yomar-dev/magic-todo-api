@@ -38,15 +38,11 @@ export async function authenticate(
 
     const decoded = jwt.verify(token, config.jwt.secret);
 
-    if (
-      typeof decoded === 'string' ||
-      typeof decoded.userId !== 'string' ||
-      typeof decoded.email !== 'string'
-    ) {
+    if (typeof decoded === 'string' || typeof decoded.userId !== 'string') {
       throw new UnauthorizedError('Invalid token payload');
     }
 
-    const payload: AuthUser = { userId: decoded.userId, email: decoded.email };
+    const payload = { userId: decoded.userId } as AuthUser;
 
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
