@@ -21,3 +21,9 @@ export class UnauthorizedError extends AppError {
     super(401, message);
   }
 }
+
+export class NotFoundError extends AppError {
+  constructor(message = 'Resource not found') {
+    super(404, message);
+  }
+}

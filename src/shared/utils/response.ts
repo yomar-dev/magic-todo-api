@@ -10,3 +10,15 @@ export function success<T>(
 ): ApiResponse<T> {
   return { data, meta };
 }
+
+export function paginated<T>(
+  data: T[],
+  total: number,
+  limit: number,
+  offset: number,
+): ApiResponse<T[]> {
+  return {
+    data,
+    meta: { total, limit, offset, hasMore: offset + limit < total },
+  };
+}
