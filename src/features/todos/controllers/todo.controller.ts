@@ -7,6 +7,10 @@ import {
 } from '../validators/todo.validator.js';
 import { success, paginated } from '../../../shared/utils/response.js';
 
+const getParam = (param: string | string[]): string => {
+  return Array.isArray(param) ? param[0] : param;
+};
+
 export class TodoController {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
@@ -27,6 +31,16 @@ export class TodoController {
         .json(
           paginated(result.todos, result.total, result.limit, result.offset),
         );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = getParam(req.params.id);
+      const todo = await todoService.getById(req.user!.userId, id);
+      res.status(200).json(success(todo));
     } catch (error) {
       next(error);
     }

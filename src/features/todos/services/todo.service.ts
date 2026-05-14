@@ -4,6 +4,7 @@ import {
   CreateTodoInput,
   ListTodoInput,
 } from '../validators/todo.validator.js';
+import { NotFoundError } from '../../../shared/exceptions/AppError.js';
 
 export class TodoService {
   async create(userId: string, input: CreateTodoInput): Promise<TodoResponse> {
@@ -61,6 +62,22 @@ export class TodoService {
       limit: input.limit,
       offset: input.offset,
     };
+  }
+
+  async getById(userId: string, id: string): Promise<TodoResponse> {
+    const todo = await prisma.todo.findUnique({
+      where: { id, userId },
+      include: {
+        category: { select: { id: true, name: true } },
+        tags: { select: { tag: { select: { id: true, name: true } } } },
+      },
+    });
+
+    if (!todo) {
+      throw new NotFoundError('Todo not found');
+    }
+
+    return this.formatTodo(todo);
   }
 
   private formatTodo(todo: {

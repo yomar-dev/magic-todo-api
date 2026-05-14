@@ -8,5 +8,6 @@ router.use(authenticate);
 
 router.post('/', (req, res, next) => todoController.create(req, res, next));
 router.get('/', (req, res, next) => todoController.list(req, res, next));
+router.get('/:id', (req, res, next) => todoController.getById(req, res, next));
 
 export default router;
