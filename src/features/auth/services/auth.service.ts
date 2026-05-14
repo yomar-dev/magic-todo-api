@@ -87,13 +87,21 @@ export class AuthService {
     token: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
-      const decoded = jwt.verify(token, config.jwt.refreshSecret) as {
-        userId: string;
-      };
+      const decoded = jwt.verify(token, config.jwt.refreshSecret);
+
+      if (
+        typeof decoded === 'string' ||
+        !decoded.userId ||
+        typeof decoded.userId !== 'string'
+      ) {
+        throw new UnauthorizedError('Invalid token payload');
+      }
+
+      const { userId } = decoded as { userId: string };
 
       const user = await prisma.user.findUnique({
         where: {
-          id: decoded.userId,
+          id: userId,
         },
         select: {
           id: true,
@@ -114,7 +122,13 @@ export class AuthService {
         refreshToken,
       };
     } catch (error) {
-      throw new UnauthorizedError('Invalid refresh token');
+      if (
+        error instanceof jwt.JsonWebTokenError ||
+        error instanceof jwt.TokenExpiredError
+      ) {
+        throw new UnauthorizedError('Invalid refresh token');
+      }
+      throw error;
     }
   }
 
