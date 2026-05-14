@@ -66,7 +66,7 @@ export class TodoService {
   }
 
   async getById(userId: string, id: string): Promise<TodoResponse> {
-    const todo = await prisma.todo.findUnique({
+    const todo = await prisma.todo.findFirst({
       where: { id, userId },
       include: {
         category: { select: { id: true, name: true } },
